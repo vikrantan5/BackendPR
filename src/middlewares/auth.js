@@ -18,7 +18,7 @@
         next()
     }
     else{
-        res.status(401).send("password not match")
+        res.status(401).send("password  not match")
     }
 }
 
