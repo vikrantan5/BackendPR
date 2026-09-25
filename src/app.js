@@ -4,26 +4,55 @@ const app = express()
 app.use(express.json())
 const connectDB = require("./config/database")
 const User = require("./models/user")
+const {validateSignUpData ,validateLoginData} = require("./utils/validation")
 
+const bcrypt = require("bcrypt")
 
+const cookieParser= require("cookie-parser")
+app.use(cookieParser())
+const jwt = require("jsonwebtoken")
+const {userAuth} = require("./middlewares/auth")
+
+//we have to give the strict check for the post abd the patch api
 app.post("/register" ,async (req , res)=>{
 
-    const newuser = new User(req.body)
+    // validate the data
+    // encrypt the password
+
+
 
     //creatting new instance of the user model
-    const user = new User({
-        firstName:"vikrant nisu ",
-        lastName:"chacha nisu",
-        age:15,
-        about:"this is vikrant singh"
-    })
+    // const user = new User({
+    //     firstName:"vikrant nisu ",
+    //     lastName:"chacha nisu",
+    //     age:15,
+    //     about:"this is vikrant singh"
+    // })
 
     try{
+            validateSignUp(req)
+
+
+            const {password ,firstName,lastName , emailId,skills , gender} = req.body
+const passwordHash = await bcrypt.hash(password , 10)
+console.log(passwordHash)
+
+
+
+
+
+    const newuser = new User({
+        firstName,
+        lastName,
+        emailId,
+        password:passwordHash,
+     
+    })
         await newuser.save()
         res.send("user daved to the database")
     }
     catch(err){
-        res.status(404).send("this i some error")
+        res.status(404).send("this i some error"+err)
     }
 
     
@@ -33,23 +62,68 @@ app.post("/register" ,async (req , res)=>{
 })
 
 
-// app.get("/user" , (req ,res ,next)=>{
-//     // res.send("this route handler 1")
-//     next();
-// },
-// (req , res ,next)=>{
-//     // res.send("thsi is the 2nd route handler")
-//     next()
-// } , 
-// (req , res , next)=>{
-//     res.send("thsi si the 3rd route handler")
-//     next()
-// },
-// (req , res , next)=>{
-//     res.send("thdis si the 4th route handler")
-//     // next()
-// }
-// )
+app.post("/login" , async(req ,res)=>{
+
+    try{
+
+        validateLoginData(req)
+
+        const {emailId , password} = req.body
+     
+
+        const user = await User.findOne({emailId})
+
+        if(!user){
+            throw new Error("email/password not correct")
+        }
+
+        
+
+        const isTrue = await user.comparePasword(password)
+
+        if(!isTrue){
+
+
+
+            throw new Error("rmail/password not valids")
+        }
+
+
+        const token = await user.getJwt()
+        console.log(token)
+
+        res.cookie("token" , token , {expires:new Date(Date.now()+ 8*3600000)})
+        res.send("You are logged in successfully")
+
+    }
+    catch(err){
+        res.status(404).send("there is error"+err)
+    }
+})
+
+
+
+app.get("/profile" , userAuth,async (req ,res)=>{
+    try{
+
+
+    res.send(req.user)
+    }
+    catch(err){
+        res.status(404).send(err.message)
+    }
+   
+})
+
+app.get("/connectionreq" ,userAuth, (req , res)=>{
+
+
+    console.log(req.user)
+
+    const {firstName, lastName} = req.user
+
+    res.send(firstName +" "+lastName +" "+"sent you the connection resq")
+})
 
 connectDB().then(()=>{
     console.log("connecte to DB")
@@ -59,6 +133,108 @@ connectDB().then(()=>{
 }).catch(err=>{
     console.log("not connected ")
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -423,3 +599,131 @@ app.use("/"  , (req ,res)=>{
 })
 
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// //find user by emailk
+
+// app.get("/user" ,async (req ,res)=>{
+//     const email =req.body.email
+
+//     try{
+
+//         console.log(email)
+    
+//     const  user = await User.findOne({emailId:email})
+
+//     if(!user){
+//         res.status(404).send("user hi nhi h")
+//     }
+//         res.send(user)
+
+      
+//     }catch(err){
+//         res.status(404).send("error hao pira")
+//     }
+// })
+// //feed api
+
+// app.get("/feed" ,async (req , res)=>{
+
+
+//     try{
+//     const user = await User.find({})
+//     console.log(user)
+//     res.send(user)
+//     }
+//     catch(err){
+//          console.log(err);
+//         res.status(500).send("thsi si error")
+//     }
+
+
+// })
+
+
+
+// app.delete("/delete" ,async (req , res)=>{
+
+//     const userId = req.body.userId
+
+//     try{
+//          await User.findByIdAndDelete({_id:userId})
+
+
+//     res.send("user deleted")
+//     }
+//     catch(err){
+//         res.status(404).send("there is some erorr in the de;ete")
+//     }
+   
+
+// })
+
+
+
+// app.patch("/user/:userId" ,async(req ,res)=>{
+//     const userId = req.params.userId
+//     const data = req.body
+
+
+//     try{
+//     const ALLOWED_UPDATES = ["firstName" , "lastName" , "age" , "gender" , "skills"]
+//    const isupdateAllowed = Object.keys(data).every((k)=>{
+//      return (ALLOWED_UPDATES.includes(k))
+//    })
+
+//    if(!isupdateAllowed){
+//         throw new Error("there is somthing forbidden`")
+//    }
+
+//    if(data?.skills){
+//     if(data.skills.length >6){
+//         throw new Error("baap ka maal nhi h")
+//     }
+//    }
+
+
+//     await  User.findOneAndUpdate({_id:userId} , data , {
+//             returnDocument:"after",
+//             runValidators:true
+//         })
+//         res.send("update successfully")
+//     }
+//     catch(err){
+//         // console.log(err)
+//     res.status(400).send(err.message)
+//     }
+   
+
+
+// })
+
+// app.get("/user" , (req ,res ,next)=>{
+//     // res.send("this route handler 1")
+//     next();
+// },
+// (req , res ,next)=>{
+//     // res.send("thsi is the 2nd route handler")
+//     next()
+// } , 
+// (req , res , next)=>{
+//     res.send("thsi si the 3rd route handler")
+//     next()
+// },
+// (req , res , next)=>{
+//     res.send("thdis si the 4th route handler")
+//     // next()
+// }
+// )
