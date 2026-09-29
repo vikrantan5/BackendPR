@@ -4,7 +4,7 @@ const app = express()
 app.use(express.json())
 const connectDB = require("./config/database")
 const User = require("./models/user")
-const {validateSignUpData ,validateLoginData} = require("./utils/validation")
+const {validateSignUpData ,validateLoginData,validateEditProfileData} = require("./utils/validation")
 
 const bcrypt = require("bcrypt")
 
@@ -13,117 +13,14 @@ app.use(cookieParser())
 const jwt = require("jsonwebtoken")
 const {userAuth} = require("./middlewares/auth")
 
-//we have to give the strict check for the post abd the patch api
-app.post("/register" ,async (req , res)=>{
-
-    // validate the data
-    // encrypt the password
+const userRouter = require("./routes/auth")
+const profileRouter = require("./routes/profile")
+const requestRouter =require("./routes/request")
 
 
-
-    //creatting new instance of the user model
-    // const user = new User({
-    //     firstName:"vikrant nisu ",
-    //     lastName:"chacha nisu",
-    //     age:15,
-    //     about:"this is vikrant singh"
-    // })
-
-    try{
-            validateSignUp(req)
-
-
-            const {password ,firstName,lastName , emailId,skills , gender} = req.body
-const passwordHash = await bcrypt.hash(password , 10)
-console.log(passwordHash)
-
-
-
-
-
-    const newuser = new User({
-        firstName,
-        lastName,
-        emailId,
-        password:passwordHash,
-     
-    })
-        await newuser.save()
-        res.send("user daved to the database")
-    }
-    catch(err){
-        res.status(404).send("this i some error"+err)
-    }
-
-    
-
-
-
-})
-
-
-app.post("/login" , async(req ,res)=>{
-
-    try{
-
-        validateLoginData(req)
-
-        const {emailId , password} = req.body
-     
-
-        const user = await User.findOne({emailId})
-
-        if(!user){
-            throw new Error("email/password not correct")
-        }
-
-        
-
-        const isTrue = await user.comparePasword(password)
-
-        if(!isTrue){
-
-
-
-            throw new Error("rmail/password not valids")
-        }
-
-
-        const token = await user.getJwt()
-        console.log(token)
-
-        res.cookie("token" , token , {expires:new Date(Date.now()+ 8*3600000)})
-        res.send("You are logged in successfully")
-
-    }
-    catch(err){
-        res.status(404).send("there is error"+err)
-    }
-})
-
-
-
-app.get("/profile" , userAuth,async (req ,res)=>{
-    try{
-
-
-    res.send(req.user)
-    }
-    catch(err){
-        res.status(404).send(err.message)
-    }
-   
-})
-
-app.get("/connectionreq" ,userAuth, (req , res)=>{
-
-
-    console.log(req.user)
-
-    const {firstName, lastName} = req.user
-
-    res.send(firstName +" "+lastName +" "+"sent you the connection resq")
-})
+app.use("/" , userRouter)
+app.use("/" , profileRouter)
+app.use("/" , requestRouter)
 
 connectDB().then(()=>{
     console.log("connecte to DB")
