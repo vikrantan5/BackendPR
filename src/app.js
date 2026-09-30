@@ -1,93 +1,33 @@
-const express = require("express")
-const app = express()
-require("dotenv").config()
-app.use(express.json())
-const connectDB = require("./config/database")
-const User = require("./models/user")
-const {validateSignUpData ,validateLoginData,validateEditProfileData} = require("./utils/validation")
-
-const bcrypt = require("bcrypt")
-
-const cookieParser= require("cookie-parser")
-app.use(cookieParser())
-const jwt = require("jsonwebtoken")
-const {userAuth} = require("./middlewares/auth")
-
-const userRouter = require("./routes/auth")
-const profileRouter = require("./routes/profile")
-const requestRouter =require("./routes/request")
-
-
-app.use("/" , userRouter)
-app.use("/" , profileRouter)
-app.use("/" , requestRouter)
-
-connectDB().then(()=>{
-    console.log("connecte to DB")
-    app.listen(3000 , ()=>{
-    console.log("connected to 3000 port")
-    })
-}).catch(err=>{
-    console.log("not connected ")
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+const express = require("express");
+const app = express();
+require("dotenv").config();
+app.use(express.json());
+const connectDB = require("./config/database");
+
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
+const userRouter = require("./routes/user");
+
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
+app.use("/", userRouter);
+
+connectDB()
+  .then(() => {
+    console.log("connecte to DB");
+    app.listen(3000, () => {
+      console.log("connected to 3000 port");
+    });
+  })
+  .catch((err) => {
+    console.log("not connected ");
+  });
 
 
 
@@ -155,8 +95,6 @@ connectDB().then(()=>{
 
 // //in this there is route and the route ahndler and when the response somr this this is called req handler and when they didi mnot res some this this is cvalled the middlware middleware is nothig  t is the route handler between the req and the request handler
 
-
-
 // // us+er ---->it means humlod kitne baar v s de sakte hai
 // // us?er------>it mean ki s important nhi hai hata v sakyte hai
 // // us*er------>it means the bich me kuch v daal asakte hai
@@ -176,69 +114,6 @@ connectDB().then(()=>{
 //     console.log("server is running on the port 3000")
 // })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // const express = require("express");
 
 // const app = express();
@@ -248,13 +123,10 @@ connectDB().then(()=>{
 // const newuserModel = require("./models/newuser")
 // app.use(express.json())
 
-
 // app.post("/signup" ,async (req ,res)=>{
-
 
 //     console.log(req.body)
 // //our server not able to the read json data
-
 
 //     const user = new User(req.body)
 
@@ -265,8 +137,6 @@ connectDB().then(()=>{
 //     catch(err){
 //         res.status(400).send("there is errpr"+err)
 //     }
-
-
 
 //         // const user = new User({
 //         //     firstName:"virat",
@@ -283,8 +153,6 @@ connectDB().then(()=>{
 //         // }catch(err){
 //         //     res.status(400).send("there is some error"+err)
 //         // }
-       
-
 
 //         // const user = new newuserModel({
 //         //     firstName:"Vikrnt",
@@ -293,7 +161,6 @@ connectDB().then(()=>{
 //         //     password:"vikrant12334"
 //         // })
 
-
 //         // try{
 //         //       await user.save()
 //         // res.send("user saved successfu;lly")
@@ -301,12 +168,9 @@ connectDB().then(()=>{
 //         // catch(err){
 //         //     res.status(400).send("there is sn error"+err)
 //         // }
-      
+
 //     // creating the new instance of the user model
 // })
-
-
-
 
 // // finde user
 // app.get("/user"  ,async(req , res)=>{
@@ -320,21 +184,18 @@ connectDB().then(()=>{
 //          else{
 //                res.send(users)
 //          }
-      
+
 //     }
 //     catch(err){
 //         res.status(400).send("somrthign wen wrong"+err)
 //     }
-  
+
 // })
 // //feed api
-
-
 
 // app.get("/feed" , (req, res)=>{
 
 // })
-
 
 // connectDB().then(() => {
 //   console.log("daatbase connected successfully");
@@ -344,54 +205,6 @@ connectDB().then(()=>{
 // }).catch(err=>{
 //     console.log("getting the eror" + err)
 // })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // const express = require("express");
 
@@ -497,19 +310,6 @@ app.use("/"  , (req ,res)=>{
 
 */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // //find user by emailk
 
 // app.get("/user" ,async (req ,res)=>{
@@ -518,7 +318,7 @@ app.use("/"  , (req ,res)=>{
 //     try{
 
 //         console.log(email)
-    
+
 //     const  user = await User.findOne({emailId:email})
 
 //     if(!user){
@@ -526,7 +326,6 @@ app.use("/"  , (req ,res)=>{
 //     }
 //         res.send(user)
 
-      
 //     }catch(err){
 //         res.status(404).send("error hao pira")
 //     }
@@ -534,7 +333,6 @@ app.use("/"  , (req ,res)=>{
 // //feed api
 
 // app.get("/feed" ,async (req , res)=>{
-
 
 //     try{
 //     const user = await User.find({})
@@ -546,10 +344,7 @@ app.use("/"  , (req ,res)=>{
 //         res.status(500).send("thsi si error")
 //     }
 
-
 // })
-
-
 
 // app.delete("/delete" ,async (req , res)=>{
 
@@ -558,22 +353,17 @@ app.use("/"  , (req ,res)=>{
 //     try{
 //          await User.findByIdAndDelete({_id:userId})
 
-
 //     res.send("user deleted")
 //     }
 //     catch(err){
 //         res.status(404).send("there is some erorr in the de;ete")
 //     }
-   
 
 // })
-
-
 
 // app.patch("/user/:userId" ,async(req ,res)=>{
 //     const userId = req.params.userId
 //     const data = req.body
-
 
 //     try{
 //     const ALLOWED_UPDATES = ["firstName" , "lastName" , "age" , "gender" , "skills"]
@@ -591,7 +381,6 @@ app.use("/"  , (req ,res)=>{
 //     }
 //    }
 
-
 //     await  User.findOneAndUpdate({_id:userId} , data , {
 //             returnDocument:"after",
 //             runValidators:true
@@ -602,8 +391,6 @@ app.use("/"  , (req ,res)=>{
 //         // console.log(err)
 //     res.status(400).send(err.message)
 //     }
-   
-
 
 // })
 
@@ -614,7 +401,7 @@ app.use("/"  , (req ,res)=>{
 // (req , res ,next)=>{
 //     // res.send("thsi is the 2nd route handler")
 //     next()
-// } , 
+// } ,
 // (req , res , next)=>{
 //     res.send("thsi si the 3rd route handler")
 //     next()

@@ -1,48 +1,36 @@
-const User = require("../models/user")
+const User = require("../models/user");
 
-const jwt = require("jsonwebtoken")
- const userAuth = async(req , res , next)=>{
+const jwt = require("jsonwebtoken");
+const userAuth = async (req, res, next) => {
+  //read the token from the req cookies
 
-    //read the token from the req cookies
+  try {
+    const { token } = req.cookies;
 
-
-    try{
-            const {token} = req.cookies
-
-    if(!token){
-        throw new Error("Please login again")
+    if (!token) {
+      throw new Error("Please login again");
     }
 
-    const decodedMessage = await jwt.verify(token , "THISISME")
+    const decodedMessage = await jwt.verify(token, "THISISME");
 
-    const {_id} =decodedMessage
+    const { _id } = decodedMessage;
 
+    const user = await User.findById({ _id });
 
-    const user = await User.findById({_id})
-
-    if(!user){
-        throw new Error("please login again")
+    if (!user) {
+      throw new Error("please login again");
     }
 
-    req.user = user
-    next()
-    }
-    catch(err){
-        res.status(404).send(err.message)
-    }
+    req.user = user;
+    next();
+  } catch (err) {
+    res.status(404).send(err.message);
+  }
 
-
-
-
-    // validate th e token
-    // find the user
-
-
-
-}
-
-
+  // validate th e token
+  // find the user
+};
 
 module.exports = {
-      userAuth
-}
+  userAuth,
+};
