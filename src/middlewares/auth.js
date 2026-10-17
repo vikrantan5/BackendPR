@@ -8,7 +8,7 @@ const userAuth = async (req, res, next) => {
     const { token } = req.cookies;
 
     if (!token) {
-      throw new Error("Please login again");
+      return res.status(401).send("PLEASE LOGIN AGEIN") 
     }
 
     const decodedMessage = await jwt.verify(token, "THISISME");

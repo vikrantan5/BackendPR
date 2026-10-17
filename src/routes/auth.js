@@ -59,12 +59,12 @@ authRouter.post("/login", async (req, res) => {
     }
 
     const token = await user.getJwt();
-    console.log(token);
+    // console.log(token);
 
     res.cookie("token", token, { expires: new Date(Date.now() + 8 * 3600000) });
-    res.send("You are logged in successfully");
+    res.send(user);
   } catch (err) {
-    res.status(404).send("there is error" + err);
+    res.status(400).send("there is error" + err);
   }
 });
 
