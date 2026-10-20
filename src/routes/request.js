@@ -21,7 +21,7 @@ requestRouter.post(
         });
       }
 
-      const allowedStatus = ["interested", "ignore"];
+      const allowedStatus = ["interested", "ignored"];
 
       const isThere = allowedStatus.includes(status);
 

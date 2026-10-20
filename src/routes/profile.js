@@ -35,6 +35,7 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
       "about",
       "skills",
       "gender",
+      "photoUrl"
     ];
 
     const data = req.body;
@@ -55,7 +56,10 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
 
     await loggedInuser.save();
 
-    res.send("field changes successfully");
+    res.json({
+  message: "field changes successfully",
+  data: loggedInuser
+});
   } catch (err) {
     res.status(400).send(err.message);
   }
